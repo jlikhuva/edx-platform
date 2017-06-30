@@ -150,6 +150,7 @@ class CapaFields(object):
         display_name=_("Value of X"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
         values={"min":0},
+        default=0,
         scope=Scope.settings
     )
     force_save_button = Boolean(
@@ -923,7 +924,7 @@ class CapaMixin(ScorableXBlockMixin, CapaFields):
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
         elif self.showanswer == SHOWANSWER.AFTER_X_ATTEMPTS:
-            return self.attempts > self.attempts_before_showanswer_button
+            return self.attempts >= self.attempts_before_showanswer_button
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
 
