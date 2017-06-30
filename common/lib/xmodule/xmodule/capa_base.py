@@ -143,7 +143,14 @@ class CapaFields(object):
             {"display_name": _("Finished"), "value": SHOWANSWER.FINISHED},
             {"display_name": _("Correct or Past Due"), "value": SHOWANSWER.CORRECT_OR_PAST_DUE},
             {"display_name": _("Past Due"), "value": SHOWANSWER.PAST_DUE},
-            {"display_name": _("Never"), "value": SHOWANSWER.NEVER}]
+            {"display_name": _("Never"), "value": SHOWANSWER.NEVER},
+            {"display_name": _("After X Attempts"), "value": SHOWANSWER.AFTER_X_ATTEMPTS}]
+    )
+    attempts_before_showanswer_button = Integer(
+        display_name=_("Value of X"),
+        help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
+        values={"min":0},
+        scope=Scope.settings
     )
     force_save_button = Boolean(
         help=_("Whether to force the save button to appear on the page"),
@@ -915,6 +922,8 @@ class CapaMixin(ScorableXBlockMixin, CapaFields):
             return self.is_correct() or self.is_past_due()
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
+        elif self.showanswer == SHOWANSWER.AFTER_X_ATTEMPTS:
+            return self.attempts > self.attempts_before_showanswer_button
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
 
