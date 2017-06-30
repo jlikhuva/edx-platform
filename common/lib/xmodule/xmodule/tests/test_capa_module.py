@@ -413,6 +413,49 @@ class CapaModuleTest(unittest.TestCase):
                                             graceperiod=self.two_day_delta_str)
         self.assertFalse(still_in_grace.answer_available())
 
+    def test_showanswer_after_attempts(self):
+        """
+        With showanswer="after_attempts",
+        the show answer button should
+        only appear after the user has
+        attempted the problem(i.e clicked the
+        submit button) for the requisite number of times.
+
+        Once the button appears, it does not disappear again.
+        """
+        # Cannot see answer because user has not attempted
+        # answering question for the required number of
+        # times.
+        before_attempts = CapaFactory.create(showanswer="after_attempts",
+                                             attempts="2",
+                                             after_attempts="3")
+        self.assertFalse(before_Attempts.answer_available())
+
+        # can see answer even after all attempts are used up,
+        # even with the due date in the future
+        used_all_attempts = CapaFactory.create(showanswer='after_attempts',
+                                               after_attempts="2",
+                                               max_attempts="3",
+                                               attempts="3",
+                                               due=self.tomorrow_str)
+        self.assertTrue(used_all_attempts.answer_available())
+
+        # can see after due date
+        past_due_date = CapaFactory.create(showanswer='after_attempts',
+                                           after_attempts="2",
+                                           attempts="2",
+                                           due=self.yesterday_str)
+        self.assertTrue(past_due_date.answer_available())
+
+        # Can see even though grace period hasn't expired as long as
+        # User has already attempted for the required number of times
+        still_in_grace = CapaFactory.create(showanswer='after_attempts',
+                                            after_attempts="3",
+                                            attempts="4",
+                                            due=self.yesterday_str,
+                                            graceperiod=self.two_day_delta_str)
+        self.assertTrue(still_in_grace.answer_available())
+
     def test_showanswer_finished(self):
         """
         With showanswer="finished" should show answer after the problem is closed,
