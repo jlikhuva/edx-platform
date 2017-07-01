@@ -18,6 +18,7 @@ class SHOWANSWER(object):
     NEVER = "never"
     AFTER_ATTEMPTS = "after_attempts"
 
+
 class RANDOMIZATION(object):
     """
     Constants for problem randomization

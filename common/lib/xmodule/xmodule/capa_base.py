@@ -143,7 +143,7 @@ class CapaFields(object):
     attempts_before_showanswer_button = Integer(
         display_name=_("Show Answer - Attempts"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
-        values={"min":0},
+        values={"min": 0},
         default=0,
         scope=Scope.settings
     )
@@ -908,7 +908,7 @@ class CapaMixin(CapaFields):
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
         elif self.showanswer == SHOWANSWER.AFTER_ATTEMPTS:
-            return self.attempts >= self.attempts_before_showanswer_button 
+            return self.attempts >= self.attempts_before_showanswer_button
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
 
