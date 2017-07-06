@@ -2258,6 +2258,8 @@ def password_reset_confirm_wrapper(
 
     if request.method == 'POST':
         password = request.POST['new_password1']
+        password_r = request.POST['new_password2'] # The repeated password.
+        
         if settings.FEATURES.get('ENFORCE_PASSWORD_POLICY', False):
             try:
                 validate_password_length(password)
@@ -2290,6 +2292,10 @@ def password_reset_confirm_wrapper(
                 "You are resetting passwords too frequently. Due to security policies, {num} days must elapse between password resets.",
                 num_days
             ).format(num=num_days)
+            
+        # Ensure that the new password is repeated correctly
+        if password != password_r:
+            err_msg = "The two passwords you entered were not exactly the same. Please try again."
 
     if err_msg:
         # We have an password reset attempt which violates some security policy, use the
