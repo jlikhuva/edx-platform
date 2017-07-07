@@ -108,8 +108,12 @@ class CapaFields(object):
     )
     max_attempts = Integer(
         display_name=_("Maximum Attempts"),
-        help=_("Defines the number of times a student can try to answer this problem. "
-               "If the value is not set, infinite attempts are allowed."),
+        help=_(
+            'Defines the number of times a student can try to answer this problem. '
+            'If the value is not set, infinite attempts are allowed. '
+            'NOTE: If a problem is timed, we only allow a single attempt, and ignore '
+            'the value in this field.'
+        ),
         values={"min": 0}, scope=Scope.settings
     )
     due = Date(help=_("Date that this problem is due by"), scope=Scope.settings)
@@ -147,7 +151,7 @@ class CapaFields(object):
             {"display_name": _("After # Attempts"), "value": SHOWANSWER.AFTER_ATTEMPTS}]
     )
     attempts_before_showanswer_button = Integer(
-        display_name=_("Show Answer - Attempts"),
+        display_name=_("Show Answer After Attempts"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
         values={"min": 0},
         default=0,
@@ -924,10 +928,12 @@ class CapaMixin(ScorableXBlockMixin, CapaFields):
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
         elif self.showanswer == SHOWANSWER.AFTER_ATTEMPTS:
-            return self.attempts >= self.attempts_before_showanswer_button
+            required_attempts = self.attempts_before_showanswer_button
+            if self.max_attempts and required_attempts >= self.max_attempts:
+                required_attempts = self.max_attempts
+            return self.attempts >= required_attempts
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
-
         return False
 
     def correctness_available(self):
