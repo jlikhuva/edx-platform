@@ -915,7 +915,6 @@ class CapaMixin(CapaFields):
             if self.max_attempts and required_attempts >= self.max_attempts:
                 required_attempts = self.max_attempts
             return self.attempts >= required_attempts
-        
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
         return False

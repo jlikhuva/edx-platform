@@ -375,17 +375,15 @@ class CapaModuleTest(unittest.TestCase):
         # answering question for the required number of
         # times.
         before_attempts_with_max = CapaFactory.create(showanswer="after_attempts",
-                                             attempts="2",
-                                             attempts_before_showanswer_button="3",
-                                             max_attempts="5")
+                                                      attempts="2",
+                                                      attempts_before_showanswer_button="3",
+                                                      max_attempts="5")
         self.assertFalse(before_attempts_with_max.answer_available())
-        
         # can't see answer even when max_attempts is not set.
         before_attempts_no_max = CapaFactory.create(showanswer="after_attempts",
-                                             attempts="2",
-                                             attempts_before_showanswer_button="3")
+                                                    attempts="2",
+                                                    attempts_before_showanswer_button="3")
         self.assertFalse(before_attempts_no_max.answer_available())
-        
         # can see answer even after all attempts are used up,
         # even with the due date in the future
         used_all_attempts = CapaFactory.create(showanswer='after_attempts',
@@ -394,14 +392,12 @@ class CapaModuleTest(unittest.TestCase):
                                                attempts="3",
                                                due=self.tomorrow_str)
         self.assertTrue(used_all_attempts.answer_available())
-
         # can see after due date
         past_due_date = CapaFactory.create(showanswer='after_attempts',
                                            attempts_before_showanswer_button="2",
                                            attempts="2",
                                            due=self.yesterday_str)
         self.assertTrue(past_due_date.answer_available())
-
         # Can see even though grace period hasn't expired as long as
         # User has already attempted for the required number of times
         still_in_grace = CapaFactory.create(showanswer='after_attempts',
@@ -410,22 +406,20 @@ class CapaModuleTest(unittest.TestCase):
                                             due=self.yesterday_str,
                                             graceperiod=self.two_day_delta_str)
         self.assertTrue(still_in_grace.answer_available())
-        
         # Ensure that if attempts_before_showanswer_button > max_attempts, the button shows up
         # after all attempts are used up, i.e after_attempts becomes max_attempts
-        large_after_attempts  = CapaFactory.create(showanswer='after_attempts',
-                                                   attempts_before_showanswer_button="5",
-                                                   max_attempts="3",
-                                                   attempts="3")
+        large_after_attempts = CapaFactory.create(showanswer='after_attempts',
+                                                  attempts_before_showanswer_button="5",
+                                                  max_attempts="3",
+                                                  attempts="3")
         self.assertTrue(large_after_attempts.answer_available())
-        
         # If attempts_before_showanswer_button is 0, then the show_answer button should always
         # be visible.
         zero_after_attempts = CapaFactory.create(showanswer='after_attempts',
                                                  attempts_before_showanswer_button='0',
                                                  attempts='0')
         self.assertTrue(zero_after_attempts.answer_available())
-        
+
     def test_showanswer_finished(self):
         """
         With showanswer="finished" should show answer after the problem is closed,
