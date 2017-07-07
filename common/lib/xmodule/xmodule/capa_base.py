@@ -105,6 +105,7 @@ class CapaFields(object):
         scope=Scope.user_state)
     max_attempts = Integer(
         display_name=_("Maximum Attempts"),
+        #default=float('inf'),
         help=_(
             'Defines the number of times a student can try to answer this problem. '
             'If the value is not set, infinite attempts are allowed. '
@@ -141,7 +142,7 @@ class CapaFields(object):
             {"display_name": _("After # Attempts"), "value": SHOWANSWER.AFTER_ATTEMPTS}]
     )
     attempts_before_showanswer_button = Integer(
-        display_name=_("Show Answer - Attempts"),
+        display_name=_("Show Answer After Attempts"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
         values={"min": 0},
         default=0,
@@ -908,10 +909,15 @@ class CapaMixin(CapaFields):
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
         elif self.showanswer == SHOWANSWER.AFTER_ATTEMPTS:
-            return self.attempts >= self.attempts_before_showanswer_button
+            # self.attempts_before_showanswer_button is read_only, to
+            # work with its modified value, we make a copy.
+            required_attempts = self.attempts_before_showanswer_button
+            if self.max_attempts and required_attempts >= self.max_attempts:
+                required_attempts = self.max_attempts
+            return self.attempts >= required_attempts
+        
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
-
         return False
 
     def update_score(self, data):
