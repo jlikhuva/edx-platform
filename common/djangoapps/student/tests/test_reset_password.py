@@ -262,3 +262,17 @@ class ResetPasswordTests(EventTestMixin, TestCase):
         self.assertEquals(confirm_kwargs['token'], self.token)
         self.user = User.objects.get(pk=self.user.pk)
         self.assertTrue(self.user.is_active)
+
+    @patch('student.views.password_reset_confirm')
+    def test_reset_password_mismatch(self, reset_confirm):
+        """
+        Tests that the platform reports an error if, when
+        trying to reset a password, the user repeats the
+        new password incorrectly.
+        """
+        bad_pwds = {"new_password1": "TestPassword1", "new_password2": "TestPassword2"}
+        bad_reset_req = self.request_factory.post('/password_reset_confirm/{0}-{1}/'.format(self.uidb36, self.token), bad_pwds)
+        bad_resp = password_reset_confirm_wrapper(bad_reset_req, self.uidb36, self.token)
+        self.assertEquals(bad_resp.context_data['validlink'], True)
+        self.assertEquals(bad_resp.context_data['form'], None)
+        self.assertEquals(bad_resp.context_data['title'], "Password reset unsuccessful")
