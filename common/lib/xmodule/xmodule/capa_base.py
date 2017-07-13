@@ -105,7 +105,6 @@ class CapaFields(object):
         scope=Scope.user_state)
     max_attempts = Integer(
         display_name=_("Maximum Attempts"),
-        #default=float('inf'),
         help=_(
             'Defines the number of times a student can try to answer this problem. '
             'If the value is not set, infinite attempts are allowed. '
@@ -139,14 +138,14 @@ class CapaFields(object):
             {"display_name": _("Correct or Past Due"), "value": SHOWANSWER.CORRECT_OR_PAST_DUE},
             {"display_name": _("Past Due"), "value": SHOWANSWER.PAST_DUE},
             {"display_name": _("Never"), "value": SHOWANSWER.NEVER},
-            {"display_name": _("After # Attempts"), "value": SHOWANSWER.AFTER_ATTEMPTS}]
+            {"display_name": _("After Some Number of Attempts"), "value": SHOWANSWER.AFTER_SOME_NUMBER_OF_ATTEMPTS}]
     )
     attempts_before_showanswer_button = Integer(
         display_name=_("Show Answer After Attempts"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
         values={"min": 0},
         default=0,
-        scope=Scope.settings
+        scope=Scope.settings,
     )
     force_save_button = Boolean(
         help=_("Whether to force the save button to appear on the page"),
@@ -908,15 +907,14 @@ class CapaMixin(CapaFields):
             return self.is_correct() or self.is_past_due()
         elif self.showanswer == SHOWANSWER.PAST_DUE:
             return self.is_past_due()
-        elif self.showanswer == SHOWANSWER.AFTER_ATTEMPTS:
-            # self.attempts_before_showanswer_button is read_only, to
-            # work with its modified value, we make a copy.
+        elif self.showanswer == SHOWANSWER.AFTER_SOME_NUMBER_OF_ATTEMPTS:
             required_attempts = self.attempts_before_showanswer_button
             if self.max_attempts and required_attempts >= self.max_attempts:
                 required_attempts = self.max_attempts
             return self.attempts >= required_attempts
         elif self.showanswer == SHOWANSWER.ALWAYS:
             return True
+
         return False
 
     def update_score(self, data):
