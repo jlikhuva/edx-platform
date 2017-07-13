@@ -141,7 +141,7 @@ class CapaFields(object):
             {"display_name": _("After Some Number of Attempts"), "value": SHOWANSWER.AFTER_SOME_NUMBER_OF_ATTEMPTS}]
     )
     attempts_before_showanswer_button = Integer(
-        display_name=_("Show Answer After Attempts"),
+        display_name=_("Show Answer: Number of Attempts"),
         help=_("Number of times the student must attempt answering the question before the Show Answer button appears."),
         values={"min": 0},
         default=0,
