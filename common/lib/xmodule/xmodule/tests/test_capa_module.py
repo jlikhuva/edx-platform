@@ -368,19 +368,18 @@ class CapaModuleTest(unittest.TestCase):
         times.
         '''
         before_attempts_with_max = CapaFactory.create(
-                showanswer="after_attempts",
-                attempts="2",
-                attempts_before_showanswer_button="3",
-                max_attempts="5"
+            showanswer="after_attempts",
+            attempts="2",
+            attempts_before_showanswer_button="3",
+            max_attempts="5"
         )
         self.assertFalse(before_attempts_with_max.answer_available())
 
-
     def test_showanswer_after_attempts_no_max(self):
         before_attempts_no_max = CapaFactory.create(
-                showanswer="after_attempts",
-                attempts="2",
-                attempts_before_showanswer_button="3"
+            showanswer="after_attempts",
+            attempts="2",
+            attempts_before_showanswer_button="3"
         )
         self.assertFalse(before_attempts_no_max.answer_available())
 
@@ -390,20 +389,20 @@ class CapaModuleTest(unittest.TestCase):
         even with the due date in the future
         '''
         used_all_attempts = CapaFactory.create(
-                showanswer='after_attempts',
-                attempts_before_showanswer_button="2",
-                max_attempts="3",
-                attempts="3",
-                due=self.tomorrow_str
+            showanswer='after_attempts',
+            attempts_before_showanswer_button="2",
+            max_attempts="3",
+            attempts="3",
+            due=self.tomorrow_str
         )
         self.assertTrue(used_all_attempts.answer_available())
 
     def test_showanswer_after_attempts_past_due_date(self):
         past_due_date = CapaFactory.create(
-                showanswer='after_attempts',
-                attempts_before_showanswer_button="2",
-                attempts="2",
-                due=self.yesterday_str
+            showanswer='after_attempts',
+            attempts_before_showanswer_button="2",
+            attempts="2",
+            due=self.yesterday_str
         )
         self.assertTrue(past_due_date.answer_available())
 
@@ -413,11 +412,11 @@ class CapaModuleTest(unittest.TestCase):
         User has already attempted for the required number of times
         '''
         still_in_grace = CapaFactory.create(
-                showanswer='after_attempts',
-                after_attempts="3",
-                attempts="4",
-                due=self.yesterday_str,
-                graceperiod=self.two_day_delta_str
+            showanswer='after_attempts',
+            after_attempts="3",
+            attempts="4",
+            due=self.yesterday_str,
+            graceperiod=self.two_day_delta_str
         )
         self.assertTrue(still_in_grace.answer_available())
 
@@ -427,10 +426,10 @@ class CapaModuleTest(unittest.TestCase):
         after all attempts are used up, i.e after_attempts becomes max_attempts
         '''
         large_after_attempts = CapaFactory.create(
-                showanswer='after_attempts',
-                attempts_before_showanswer_button="5",
-                max_attempts="3",
-                attempts="3"
+            showanswer='after_attempts',
+            attempts_before_showanswer_button="5",
+            max_attempts="3",
+            attempts="3"
         )
         self.assertTrue(large_after_attempts.answer_available())
 
@@ -441,9 +440,9 @@ class CapaModuleTest(unittest.TestCase):
         be visible.
         '''
         zero_after_attempts = CapaFactory.create(
-                showanswer='after_attempts',
-                attempts_before_showanswer_button='0',
-                attempts='0'
+            showanswer='after_attempts',
+            attempts_before_showanswer_button='0',
+            attempts='0'
         )
         self.assertTrue(zero_after_attempts.answer_available())
 
