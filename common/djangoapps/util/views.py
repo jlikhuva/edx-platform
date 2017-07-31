@@ -299,8 +299,6 @@ def submit_feedback(request):
     additional_info = {}
 
     required_fields = ["subject", "details"]
-    if not UserProfile.has_registered(request.user):
-        required_fields += ["name", "email"]
     required_field_errs = {
         "subject": "Please provide a subject.",
         "details": "Please provide details.",
@@ -317,18 +315,6 @@ def submit_feedback(request):
     tags = dict(
         [(tag, request.POST[tag]) for tag in ["issue_type", "course_id"] if tag in request.POST]
     )
-
-    if UserProfile.has_registered(request.user):
-        realname = request.user.profile.name
-        email = request.user.email
-        additional_info["username"] = request.user.username
-    else:
-        realname = request.POST["name"]
-        email = request.POST["email"]
-        try:
-            validate_email(email)
-        except ValidationError:
-            return build_error_response(400, "email", required_field_errs["email"])
 
     for header, pretty in [
         ("HTTP_REFERER", "Page"),

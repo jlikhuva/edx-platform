@@ -8,6 +8,7 @@ STANFORD_ROOT = REPO_ROOT / 'openedx/stanford'
 # This is actually just a base email.  We'll make it 'noreply+<username>@example.com' to ensure uniqueness
 ANONYMOUS_USER_EMAIL = 'noreply@example.com'
 API_DATE_FORMAT = '%Y-%m-%d'
+AUTHENTICATION_BACKENDS += ('lazysignup.backends.LazySignupBackend',)
 COURSE_FORUMS_DOWNLOAD_ROUTING_KEY = HIGH_MEM_QUEUE
 COURSE_MODE_DEFAULTS = {
     'currency': 'usd',
@@ -66,15 +67,13 @@ INSTALLED_APPS += (
     'cme_registration',
     'instructor_email_widget',
     'settings_context_processor',
-    'sneakpeek_deeplink',
     # Added here to allow translations
     'freetextresponse',
+    'lazysignup',
+    'openedx.stanford.djangoapps.sneakpeek',
 )
 MAKO_TEMPLATES['main'] += glob(STANFORD_ROOT / 'djangoapps/*/templates')
 MAX_ENROLLEES_FOR_METRICS_USING_DB = 100
-MIDDLEWARE_CLASSES += (
-    'sneakpeek_deeplink.middleware.SneakPeekDeepLinkMiddleware',
-)
 ORA2_RESPONSES_DOWNLOAD = {
     'STORAGE_TYPE': 'localfs',
     'BUCKET': 'edx-grades',
@@ -126,3 +125,42 @@ TYPES_WITH_CHILD_PROBLEMS_LIST = [
 INSTRUCTOR_QUERY_PROBLEM_TYPES = [
     'problem',
 ]
+
+NONREGISTERED_CATEGORY_WHITELIST = [
+    "about",
+    "chapter",
+    "course",
+    "course_info",
+    "problem",
+    "sequential",
+    "vertical",
+    "videoalpha",
+    #"combinedopenended",
+    #"discussion",
+    "html",
+    #"peergrading",
+    "static_tab",
+    "video",
+    #"annotatable",
+    "book",
+    "conditional",
+    #"crowdsource_hinter",
+    "custom_tag_template",
+    #"discuss",
+    #"error",
+    "hidden",
+    "image",
+    "imagemodal",
+    "invideoquiz",
+    "problemset",
+    "randomize",
+    "raw",
+    "section",
+    "slides",
+    "timelimit",
+    "videodev",
+    "videosequence",
+    "word_cloud",
+    "wrapper",
+]
+

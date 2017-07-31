@@ -7,6 +7,7 @@ from django.conf import settings
 from edxnotes.helpers import is_feature_enabled as is_edxnotes_enabled
 from student.models import UserProfile
 from pipeline_mako import render_require_js_path_overrides
+from lazysignup.utils import is_lazy_user
 %>
 <%
   include_special_exams = settings.FEATURES.get('ENABLE_SPECIAL_EXAMS', False) and (course.enable_proctored_exams or course.enable_timed_exams)
@@ -94,7 +95,7 @@ ${static.get_page_title_breadcrumbs(course_name())}
   % if staff_access:
   	<%include file="xqa_interface.html"/>
 	% if analytics_url:
-		<script type="text/javascript" src="${static.url('js/inline_analytics.js')}"></script> 
+		<script type="text/javascript" src="${static.url('js/inline_analytics.js')}"></script>
 	% endif
   % endif
 
@@ -219,12 +220,13 @@ ${fragment.foot_html()}
       <div id="error-message" aria-live="polite"></div>
       <div class="courseware-results search-results" data-course-id="${course.id}" data-lang-code="${language_preference}"></div>
     </section>
+    </div>
 
-  </div>
-  % if course and user.is_authenticated() and not UserProfile.has_registered(user):
-    <%include file="sneak_peek_tos_privacy.html" />
-  % endif
+    % if course and is_lazy_user(user):
+        <%include file="./sneakpeek_terms_of_service_and_privacy.html"/>
+    % endif
 </div>
+
 <div class="container-footer">
   % if settings.FEATURES.get("LICENSING", False):
     <div class="course-license">

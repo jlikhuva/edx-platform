@@ -660,13 +660,6 @@ urlpatterns += (
         'courseware.views.get_analytics_answer_dist',
         name='get_analytics_answer_dist',
     ),
-    url(
-        r'^course_sneakpeek/{}/$'.format(
-            settings.COURSE_ID_PATTERN,
-        ),
-        'student.views.setup_sneakpeek',
-        name='course_sneakpeek',
-    ),
 )
 
 if settings.FEATURES["ENABLE_TEAMS"]:
@@ -1019,3 +1012,12 @@ if settings.FEATURES.get('ENABLE_FINANCIAL_ASSISTANCE_FORM'):
             name='submit_financial_assistance_request'
         )
     )
+
+urlpatterns += (
+    url(r'^convert/', include('lazysignup.urls')),
+    url(
+        r'^course_sneakpeek/{}/$'.format(settings.COURSE_ID_PATTERN),
+        'openedx.stanford.djangoapps.sneakpeek.views.setup_sneakpeek',
+        name='course_sneakpeek',
+    ),
+)

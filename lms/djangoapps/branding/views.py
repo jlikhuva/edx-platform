@@ -16,13 +16,13 @@ from edxmako.shortcuts import render_to_response
 import student.views
 from student.models import CourseEnrollment
 import courseware.views
-from student.models import UserProfile
 from microsite_configuration import microsite
 from edxmako.shortcuts import marketing_link
 from util.cache import cache_if_anonymous
 from util.json_request import JsonResponse
 import branding.api as branding_api
 
+from lazysignup.decorators import allow_lazy_user
 
 log = logging.getLogger(__name__)
 
@@ -52,14 +52,20 @@ def index(request):
     Redirects to main page -- info page if user authenticated, or marketing if not
     '''
 
-    if UserProfile.has_registered(request.user):
-        # For microsites, only redirect to dashboard if user has
-        # courses in his/her dashboard. Otherwise UX is a bit cryptic.
-        # In this case, we want to have the user stay on a course catalog
-        # page to make it easier to browse for courses (and register)
+    if request.user.is_authenticated():
+        '''
+        For microsites, onl redirect to dashboard if user has courses in their
+        dashboard. Otherwise, UX is a bit cryptic. In this case, we want the user
+        to stay on the course catalog page to make it easier to browse courses
+        (and register.)
+        '''
         if microsite.get_value(
-                'ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER',
-                settings.FEATURES.get('ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_FOR_AUTHENTICATED_USER', True)):
+            'ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_AUTHENTICATED_USER',
+            settings.FEATURES.get(
+                'ALWAYS_REDIRECT_HOMEPAGE_TO_DASHBOARD_AUTHENTICATED_USER',
+                True,
+            )
+        ):
             return redirect(reverse('dashboard'))
 
     if settings.FEATURES.get('AUTH_USE_CERTIFICATES'):

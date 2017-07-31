@@ -1,5 +1,5 @@
 unidecode
-xblock-image-modal==0.4.0 
+xblock-image-modal==0.4.0
 -e git+https://github.com/openlearninginitiative/xblock-image-coding.git@cee23e3d59943066159ca13839c82a12d9ccf749#egg=xblock_image_coding
 -e git+https://github.com/Stanford-Online/xblock-qualtrics-survey@release/v0.1.1#egg=xblock-qualtrics-survey
 -e git+https://github.com/Stanford-Online/xblock-free-text-response@release/v0.1.6#egg=xblock-free-text-response
@@ -13,3 +13,4 @@ xblock-image-modal==0.4.0
 ubcpi-xblock==0.5.0
 -e git+https://github.com/Stanford-Online/XBlockStattutor.git@bbe80daabaaa73af72e0180609d903d9ea71cb37#egg=stattutor_xblock
 -e git+https://github.com/Stanford-Online/EdxAdaptXBlock.git@35ad130a30a682fe06c44acc0735d72296c4e0ff#egg=edxadapt-xblock
+django-lazysignup

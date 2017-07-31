@@ -66,6 +66,8 @@ from courseware.access_utils import adjust_start_date, check_start_date, debug, 
 
 from lms.djangoapps.ccx.custom_exception import CCXLocatorValidationException
 from lms.djangoapps.ccx.models import CustomCourseForEdX
+from openedx.stanford.lms.envs.common import NONREGISTERED_CATEGORY_WHITELIST
+from lazysignup.utils import is_lazy_user
 
 log = logging.getLogger(__name__)
 
@@ -345,11 +347,7 @@ def _has_access_course(user, action, courselike):
         """
         Can this user access the forums in this course?
         """
-        return (
-            can_load()
-            and
-            UserProfile.has_registered(user)
-        )
+        return can_load() and user.is_authenticated()
 
     def within_enrollment_period():
         """
@@ -438,49 +436,8 @@ def _has_access_error_desc(user, action, descriptor, course_key):
 
     return _dispatch(checkers, action, user, descriptor)
 
-
-NONREGISTERED_CATEGORY_WHITELIST = [
-    "about",
-    "chapter",
-    "course",
-    "course_info",
-    "problem",
-    "sequential",
-    "vertical",
-    "videoalpha",
-    #"combinedopenended",
-    #"discussion",
-    "html",
-    #"peergrading",
-    "static_tab",
-    "video",
-    #"annotatable",
-    "book",
-    "conditional",
-    #"crowdsource_hinter",
-    "custom_tag_template",
-    #"discuss",
-    #"error",
-    "hidden",
-    "image",
-    "imagemodal",
-    "invideoquiz",
-    "problemset",
-    "randomize",
-    "raw",
-    "section",
-    "slides",
-    "timelimit",
-    "videodev",
-    "videosequence",
-    "word_cloud",
-    "wrapper",
-]
-
-
-def _can_load_descriptor_nonregistered(descriptor):
+def _can_load_descriptor_sneakpeek(descriptor):
     return descriptor.category in NONREGISTERED_CATEGORY_WHITELIST
-
 
 def _has_group_access(descriptor, user, course_key):
     """
@@ -574,10 +531,6 @@ def _has_access_descriptor(user, action, descriptor, course_key=None):
         students to see modules.  If not, views should check the course, so we
         don't have to hit the enrollments table on every module load.
         """
-        if user.is_authenticated():
-            if not UserProfile.has_registered(user):
-                if not _can_load_descriptor_nonregistered(descriptor):
-                    return ACCESS_DENIED
         response = (
             _visible_to_nonstaff_users(descriptor)
             and _has_group_access(descriptor, user, course_key)
@@ -587,6 +540,9 @@ def _has_access_descriptor(user, action, descriptor, course_key=None):
                 or _can_access_descriptor_with_start_date(user, descriptor, course_key)
             )
         )
+        if user.is_authenticated():
+            if is_lazy_user(user) and not _can_load_descriptor_sneakpeek(descriptor):
+                return ACCESS_DENIED
 
         return (
             ACCESS_GRANTED if (response or _has_staff_access_to_descriptor(user, descriptor, course_key))

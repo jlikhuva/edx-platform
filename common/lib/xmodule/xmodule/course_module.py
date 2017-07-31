@@ -410,6 +410,12 @@ class CourseFields(object):
         help=_("Enter true or false. If true, students can create discussion posts that are anonymous to all users."),
         scope=Scope.settings, default=True
     )
+    allow_sneak_peek = Boolean(
+        display_name=_("Allow non-registered access"),
+        help=_("Enter true or false. If true, students can view course content without signing up."),
+        scope=Scope.settings,
+        default=False,
+    )
     allow_anonymous_to_peers = Boolean(
         display_name=_("Allow Anonymous Discussion Posts to Peers"),
         help=_(

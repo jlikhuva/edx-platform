@@ -6,6 +6,7 @@ from openedx.stanford.lms.envs.common import (
     INSTRUCTOR_QUERY_PROBLEM_TYPES,
 )
 
+AUTHENTICATION_BACKENDS += ('lazysignup.backends.LazySignupBackend',)
 COPYRIGHT_EMAIL = 'copyright@example.com'
 COURSE_UTILITIES = [
     # Todo: add aws entries for this
@@ -45,11 +46,14 @@ FEATURES.update({
 INSTALLED_APPS += (
     # Added here to allow translations
     'freetextresponse',
+    'lazysignup',
+    'openedx.stanford.djangoapps.sneakpeek',
 )
+
 MIDDLEWARE_CLASSES += (
-    # Log out sneakpeek users
-    'sneakpeek.middleware.SneakPeekLogoutMiddleware',
+    'openedx.stanford.djangoapps.sneakpeek.middleware.BlockSneakpeekUsers',
 )
+
 SHIB_ONLY_SITE = False
 SHIB_REDIRECT_DOMAIN_WHITELIST = {}
 SPLIT_STUDIO_HOME = False

@@ -62,7 +62,7 @@ def login_and_registration_form(request, initial_mode="login"):
     redirect_to = get_next_url_for_login_page(request)
 
     # If we're already logged in, redirect to the dashboard
-    if UserProfile.has_registered(request.user):
+    if request.user.is_authenticated():
         return redirect(redirect_to)
 
     # Retrieve the form descriptions from the user API

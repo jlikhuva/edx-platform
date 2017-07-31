@@ -44,7 +44,6 @@ from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
 from openedx.core.lib.gating import api as gating_api
 from student.models import CourseEnrollment
 from student.tests.factories import AdminFactory, UserFactory, CourseEnrollmentFactory
-from student.tests.factories import NonRegisteredUserFactory
 from util.tests.test_date_utils import fake_ugettext, fake_pgettext
 from util.url import reload_django_url_config
 from util.views import ensure_valid_course_key
@@ -745,26 +744,6 @@ class TestAccordionDueDate(BaseDueDateTests):
 
 
 @attr('shard_1')
-class TestNonRegisteredUser(TestCase):
-    """
-    Tests nonregistered (auto-created) users
-    """
-    def setUp(self):
-        self.request_factory = RequestFactory()
-        self.user = NonRegisteredUserFactory()
-        self.course_id = "course/id/doesnt_matter"
-
-    def test_nonregistered_user_factory(self):
-        self.assertTrue(self.user.profile.nonregistered)
-
-    def test_nonregistered_progress_404(self):
-        with self.assertRaises(Http404):
-            req = self.request_factory.get(reverse('progress', args=[self.course_id]))
-            req.user = self.user
-            views.progress(req, self.course_id)
-
-
-@attr('shard_1')
 class StartDateTests(ModuleStoreTestCase):
     """
     Test that start dates are properly localized and displayed on the student
@@ -1001,7 +980,7 @@ class ProgressPageTests(ModuleStoreTestCase):
         self.assertContains(resp, u"Download Your Certificate")
 
     @ddt.data(
-        *itertools.product(((40, 4, True), (40, 4, False)), (True, False))
+        *itertools.product(((39, 4, True), (39, 4, False)), (True, False))
     )
     @ddt.unpack
     def test_query_counts(self, (sql_calls, mongo_calls, self_paced), self_paced_enabled):

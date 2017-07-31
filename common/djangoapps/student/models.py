@@ -57,6 +57,8 @@ from util.model_utils import emit_field_changed_events, get_changed_fields_dict
 from util.query import use_read_replica_if_available
 from util.milestones_helpers import is_entrance_exams_enabled
 
+from lazysignup.decorators import allow_lazy_user
+from lazysignup.utils import is_lazy_user
 
 UNENROLL_DONE = Signal(providing_args=["course_enrollment", "skip_refund"])
 log = logging.getLogger(__name__)
@@ -289,9 +291,6 @@ class UserProfile(models.Model):
         """
         return self.profile_image_uploaded_at is not None
 
-    # "nonregistered" users are auto-created and have no meaningful profile info
-    nonregistered = models.BooleanField(default=False)
-
     @property
     def age(self):
         """ Convenience method that returns the age given a year_of_birth. """
@@ -330,30 +329,6 @@ class UserProfile(models.Model):
         while User.objects.filter(username=candidate).exists():
             candidate = "anon__{}".format(get_random_string(24))  # get_random_string output is alphanumeric
         return candidate
-
-    @classmethod
-    @transaction.atomic
-    def create_nonregistered_user(cls):
-        anon_username = cls.get_random_anon_username()
-        email_split = settings.ANONYMOUS_USER_EMAIL.split('@')
-        anon_email = "{}+{}@{}".format(email_split[0],
-                                       anon_username,
-                                       email_split[-1])
-        anon_user = User(username=anon_username, email=anon_email, is_active=False)
-        anon_user.save()
-        profile = UserProfile(user=anon_user, nonregistered=True)
-        profile.save()
-        return anon_user
-
-    @classmethod
-    def has_registered(cls, user):
-        """
-        Handles django anonymous users.  SHOULD use this to test whether request.user has registered,
-        i.e. has a profile that says not nonregistered,
-        instead of directly accessing user.profile.nonregistered,
-        because if the user is AnonymousUser it won't have a profile.
-        """
-        return hasattr(user, 'profile') and not user.profile.nonregistered
 
     def set_login_session(self, session_id=None):
         """
@@ -916,13 +891,7 @@ class CourseEnrollmentManager(models.Manager):
             courseenrollment__course_id=course_id,
             courseenrollment__is_active=True,
         )
-        anonymous_user_ids = [
-            user.id
-            for user in course_users
-            if not UserProfile.has_registered(user)
-        ]
-        enrolled_course_users = course_users.exclude(id__in=anonymous_user_ids)
-        return enrolled_course_users
+        return [user for user in course_users if not is_lazy_user(user)]
 
     def enrollment_counts(self, course_id):
         """
@@ -1070,7 +1039,6 @@ class CourseEnrollment(models.Model):
         enrollment_number = CourseEnrollment.objects.filter(
             course_id=course_id,
             is_active=1,
-            user__profile__nonregistered=0,
         ).count()
         return enrollment_number
 

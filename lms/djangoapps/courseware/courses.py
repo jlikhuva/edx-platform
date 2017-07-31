@@ -43,6 +43,7 @@ from opaque_keys.edx.keys import UsageKey
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
+from lazysignup.utils import is_lazy_user
 
 log = logging.getLogger(__name__)
 
@@ -304,12 +305,14 @@ def get_course_info_section(request, user, course, section_key):
             context = {
                 'username': request.user.username,
                 'user_id': request.user.id,
-                'name': request.user.profile.name,
                 'course_title': course.display_name,
                 'course_id': course.id,
                 'course_start_date': get_default_time_display(course.start),
                 'course_end_date': get_default_time_display(course.end),
             }
+            if not is_lazy_user(user):
+                context['name'] = request.user.profile.name
+
             html = substitute_keywords_with_data(html, context)
         except Exception:  # pylint: disable=broad-except
             html = render_to_string('courseware/error-message.html', None)
