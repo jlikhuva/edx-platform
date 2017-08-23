@@ -1,0 +1,20 @@
+<%!
+from django.utils.translation import ugettext as _
+
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
+%>
+
+% if course and not has_registered(user):
+  <%
+    tos_link = u"<a href='{}'>".format(marketing_link('TOS'))
+    privacy_link = u"<a href='{}#privacy'>".format(marketing_link('TOS'))
+  %>
+
+  <p class="sneakpeek-warning">
+    ${_("By exploring the course, you are agreeing to our {tos_link_start}Terms of Service{link_end} and {privacy_link_start}Privacy Policy{link_end}. Please read them carefully.").format(
+    tos_link_start=tos_link,
+    privacy_link_start=privacy_link,
+    link_end='</a>'
+    )}
+  </p>
+% endif

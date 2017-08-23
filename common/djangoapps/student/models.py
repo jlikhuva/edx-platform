@@ -56,9 +56,7 @@ from openedx.core.djangoapps.content.course_overviews.models import CourseOvervi
 from util.model_utils import emit_field_changed_events, get_changed_fields_dict
 from util.query import use_read_replica_if_available
 from util.milestones_helpers import is_entrance_exams_enabled
-
-from lazysignup.decorators import allow_lazy_user
-from lazysignup.utils import is_lazy_user
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
 
 UNENROLL_DONE = Signal(providing_args=["course_enrollment", "skip_refund"])
 log = logging.getLogger(__name__)
@@ -891,7 +889,13 @@ class CourseEnrollmentManager(models.Manager):
             courseenrollment__course_id=course_id,
             courseenrollment__is_active=True,
         )
-        return [user for user in course_users if not is_lazy_user(user)]
+        anonymous_user_ids = [
+            user.id
+            for user in course_users
+            if not has_registered(user)
+        ]
+        enrolled_course_users = course_users.exclude(id__in=anonymous_user_ids)
+        return enrolled_course_users
 
     def enrollment_counts(self, course_id):
         """
@@ -1036,11 +1040,13 @@ class CourseEnrollment(models.Model):
         'course_id' is the course_id to return enrollments
         Direct access: don't include non-registered enrollments in counts.
         """
-        enrollment_number = CourseEnrollment.objects.filter(
+        enrollment_objects = CourseEnrollment.objects.filter(
             course_id=course_id,
             is_active=1,
-        ).count()
-        return enrollment_number
+        )
+        return len(
+            [obj for obj in enrollment_objects if has_registered(obj.user)]
+        )
 
     @classmethod
     def is_enrollment_closed(cls, user, course):

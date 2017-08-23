@@ -16,7 +16,7 @@ from branding import api as branding_api
 # app that handles site status messages
 from status.status import get_site_status_msg
 from lang_pref.api import released_languages
-from lazysignup.utils import is_lazy_user
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
 %>
 
 ## Provide a hook for themes to inject branding on top.
@@ -64,7 +64,7 @@ site_status_msg = get_site_status_msg(course_id)
       <span class="course-name">${display_name}</span></h2>
     % endif
 
-    % if user.is_authenticated():
+    % if hasattr(user, 'profile'):
     <ol class="left nav-global authenticated">
       <%block name="navigation_global_links_authenticated">
         % if settings.FEATURES.get('COURSES_ARE_BROWSABLE'):
@@ -119,10 +119,8 @@ site_status_msg = get_site_status_msg(course_id)
         <ul class="dropdown-menu" aria-label="More Options" role="menu">
           <%block name="navigation_dropdown_menu_links" >
             <li><a href="${reverse('dashboard')}">${_("Dashboard")}</a></li>
-            % if not is_lazy_user(user):
-                <li><a href="${reverse('learner_profile', kwargs={'username': user.username})}">${_("Profile")}</a></li>
-                <li><a href="${reverse('account_settings')}">${_("Account")}</a></li>
-            %endif
+            <li><a href="${reverse('learner_profile', kwargs={'username': user.username})}">${_("Profile")}</a></li>
+            <li><a href="${reverse('account_settings')}">${_("Account")}</a></li>
           </%block>
           <li><a href="${reverse('logout')}" role="menuitem">${_("Sign Out")}</a></li>
         </ul>
@@ -198,7 +196,7 @@ site_status_msg = get_site_status_msg(course_id)
 <![endif]-->
 % endif
 
-%if not user.is_authenticated() and not is_lazy_user(user):
+%if hasattr(user, 'profile'):
   <%include file="forgot_password_modal.html" />
 %endif
 

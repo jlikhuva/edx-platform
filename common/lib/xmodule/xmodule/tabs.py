@@ -6,7 +6,6 @@ import logging
 
 from xblock.fields import List
 from openedx.core.lib.api.plugins import PluginError
-from lazysignup.utils import is_lazy_user
 
 log = logging.getLogger("edx.courseware")
 
@@ -59,6 +58,7 @@ class CourseTab(object):
     # If there is a single view associated with this tab, this is the name of it
     view_name = None
 
+    # True if this tab can be displaed to sneak peek users
     is_visible_to_sneak_peek = False
 
     def __init__(self, tab_dict):
@@ -383,24 +383,28 @@ class CourseTabList(List):
         is_user_authenticated=True,
         is_user_staff=True,
         is_user_enrolled=False,
+        is_user_sneakpeek=False,
     ):
         """
         Generator method for iterating through all tabs that can be displayed for the given course and
         the given user with the provided access settings.
         """
         for tab in course.tabs:
-            if not tab.is_enabled(course, user=user) or tab.is_hidden: break
-            if is_lazy_user(user) and not tab.is_visible_to_sneak_peek: break
-            if tab.is_collection:
-                # If rendering inline that add each item in the collection,
-                # else just show the tab itself as long as it is not empty.
-                if inline_collections:
-                    for item in tab.items(course):
-                         yield item
-                elif len(list(tab.items(course))) > 0:
+            if (
+                tab.is_enabled(course, user=user) and
+                (not (user and tab.is_hidden)) and
+                (not is_user_sneakpeek or tab.is_visible_to_sneak_peek)
+            ):
+                if tab.is_collection:
+                    # If rendering inline that add each item in the collection,
+                    # else just show the tab itself as long as it is not empty.
+                    if inline_collections:
+                        for item in tab.items(course):
+                            yield item
+                    elif len(list(tab.items(course))) > 0:
+                        yield tab
+                else:
                     yield tab
-            else:
-                yield tab
 
     @classmethod
     def upgrade_tabs(cls, tabs):

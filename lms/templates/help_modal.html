@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from xmodule.tabs import CourseTabList
 from microsite_configuration.templatetags.microsite import platform_name
-from student.models import UserProfile
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
 %>
 
 % if settings.FEATURES.get('ENABLE_FEEDBACK_SUBMISSION', False):
@@ -40,6 +40,7 @@ from student.models import UserProfile
 <%
   discussion_tab = CourseTabList.get_discussion(course) if course else None
   discussion_link = discussion_tab.link_func(course, reverse) if (discussion_tab and discussion_tab.is_enabled(course, user=user)) else None
+  has_user_registered = has_registered(user)
 %>
 
 % if discussion_link and has_user_registered:
@@ -52,7 +53,7 @@ from student.models import UserProfile
 % endif
 
     <p>${_('Have <strong>general questions about {platform_name}</strong>? You can find lots of helpful information in the {platform_name} Help Center.').format(platform_name=platform_name())}</p>
-	
+
 	<ul class="help-buttons">
 	  <%include file="help-center-link.html" />
 	</ul>
@@ -87,7 +88,7 @@ from student.models import UserProfile
 
     <form id="feedback_form" class="feedback_form" method="post" data-remote="true" action="/submit_feedback">
       <div id="feedback_error" class="modal-form-error" tabindex="-1"></div>
-% if not (user.is_authenticated()):
+% if not has_registered(user):
       <label data-field="name" for="feedback_form_name">${_('Name')}*</label>
       <input name="name" type="text" id="feedback_form_name" aria-required="true">
       <label data-field="email" for="feedback_form_email">${_('E-mail')}*</label>

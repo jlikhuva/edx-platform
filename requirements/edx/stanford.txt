@@ -1,5 +1,5 @@
 unidecode
-xblock-image-modal==0.4.0
+xblock-image-modal==0.4.0 
 -e git+https://github.com/openlearninginitiative/xblock-image-coding.git@cee23e3d59943066159ca13839c82a12d9ccf749#egg=xblock_image_coding
 -e git+https://github.com/Stanford-Online/xblock-qualtrics-survey@release/v0.1.1#egg=xblock-qualtrics-survey
 -e git+https://github.com/Stanford-Online/xblock-free-text-response@release/v0.1.6#egg=xblock-free-text-response

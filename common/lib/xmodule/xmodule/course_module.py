@@ -411,7 +411,7 @@ class CourseFields(object):
         scope=Scope.settings, default=True
     )
     allow_sneak_peek = Boolean(
-        display_name=_("Allow non-registered access"),
+        display_name=_("Allow sneak peek access"),
         help=_("Enter true or false. If true, students can view course content without signing up."),
         scope=Scope.settings,
         default=False,

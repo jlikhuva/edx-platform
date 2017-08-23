@@ -1,9 +1,9 @@
-from django.shortcuts import render
 from opaque_keys.edx.locations import SlashSeparatedCourseKey
 from student.models import CourseEnrollment
 from django.http import HttpResponse
 from lazysignup.decorators import allow_lazy_user
 from django.views.decorators.http import require_POST
+
 
 @allow_lazy_user
 @require_POST

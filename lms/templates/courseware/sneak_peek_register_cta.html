@@ -1,32 +1,26 @@
-<% page args="user, course" />
+<%page args="user, course" />
 <%!
-    from django.conf import settings
-    from django.core.urlresolvers import reverse
-    from django.utils.translation import ugettext as _
-    from lazysignup.utils import is_lazy_user
- %>
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
 
- % if course and is_lazy_user(user):
-    <p class="sneakpeek-warning">
-        <%
-            if settings.FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD'):
-                reg_url = reverse(
-                            'course-specific-register',
-                            args=[course.id.to_deprecated_string()]
-                        )
-            else:
-                reg_url = reverse('register_user')
-
-            tos_link = u"<a href='{}'>".format(marketing_link('TOS'))
-            privacy_link = u"<a href='{}#privacy'>".format(marketing_link('TOS'))
-        %>
-         ${_(
-                "Non-registered mode. {tag_start}Register{tag_end} to save"
-                "your course progress."
-            ).format(
-                platform_name=settings.PLATFORM_NAME,
-                tag_start="<a href='{}'>".format(reg_url),
-                tag_end="</a>",
-           )}
-    </p>
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
+%>
+% if course and user.is_authenticated() and not has_registered(user):
+  <p class="sneakpeek-warning">
+  <%
+  if settings.FEATURES.get('RESTRICT_ENROLL_BY_REG_METHOD'):
+    reg_url = reverse('course-specific-register', args=[course.id.to_deprecated_string()])
+  else:
+    reg_url = reverse('register_user')
+  tos_link = u"<a href='{}'>".format(marketing_link('TOS'))
+  privacy_link = u"<a href='{}#privacy'>".format(marketing_link('TOS'))
+  %>
+   ${_("Non-registered mode.  {tag_start}Register{tag_end} to save your course progress.")\
+     .format(platform_name=settings.PLATFORM_NAME,
+             tag_start="<a href='{}'>".format(reg_url),
+             tag_end="</a>",
+     )
+   }
+  </p>
 % endif

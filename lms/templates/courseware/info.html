@@ -5,7 +5,6 @@ from django.utils.translation import ugettext as _
 from courseware.courses import get_course_info_section, get_course_date_summary
 
 from openedx.core.djangoapps.self_paced.models import SelfPacedConfiguration
-from lazysignup.utils import is_lazy_user
 %>
 
 <%block name="pagetitle">${_("{course_number} Course Info").format(course_number=course.display_number_with_default)}</%block>
@@ -101,8 +100,7 @@ from lazysignup.utils import is_lazy_user
     </section>
     % endif
   </div>
-
-  % if course.allow_sneak_peek and is_lazy_user(user):
-    <%include file="./sneakpeek_terms_of_service_and_privacy.html"/>
+  % if sneakpeek_allowed and not regularly_registered:
+    <%include file="sneak_peek_tos_privacy.html" />
   % endif
 </section>

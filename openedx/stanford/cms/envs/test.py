@@ -5,8 +5,8 @@ FEATURES['ALLOW_COURSE_RERUNS'] = True
 INSTALLED_APPS += (
     'openedx.stanford.djangoapps.register_cme',
 )
-
+# Remove sneakpeek during tests to prevent unwanted redirect
 MIDDLEWARE_CLASSES = tuple([
-    c for c in MIDDLEWARE_CLASSES
-    if c != 'openedx.stanford.djangoapps.sneakpeek.middleware.BlockSneakpeekUsers'
+    mwc for mwc in MIDDLEWARE_CLASSES
+    if mwc != 'openedx.stanford.djangoapps.sneakpeek.middleware.LoginSneakpeekUsers'
 ])

@@ -133,6 +133,7 @@ from notification_prefs.views import enable_notifications
 from openedx.core.djangoapps.credentials.utils import get_user_program_credentials
 from openedx.core.djangoapps.user_api.preferences import api as preferences_api
 from openedx.core.djangoapps.programs.utils import get_programs_for_dashboard
+from openedx.stanford.djangoapps.sneakpeek.utils import has_registered
 
 
 log = logging.getLogger("edx.student")
@@ -432,8 +433,7 @@ def signin_user(request):
     external_auth_response = external_auth_login(request)
     if external_auth_response is not None:
         return external_auth_response
-
-    if user.is_authenticated():
+    if has_registered(request.user):
         return redirect(reverse('dashboard'))
 
     # Determine the URL to redirect to following login:
@@ -471,8 +471,9 @@ def register_user(request, extra_context=None):
     if settings.FEATURES.get('USE_CME_REGISTRATION'):
         return cme_register_user(request, extra_context=extra_context)
 
+    # Determine the URL to redirect to following login:
     redirect_to = get_next_url_for_login_page(request)
-    if request.user.is_authenticated():
+    if has_registered(request.user):
         return redirect(redirect_to)
 
     external_auth_response = external_auth_register(request)
@@ -572,7 +573,7 @@ def is_course_blocked(request, redeemed_registration_codes, course_key):
 def dashboard(request):
     user = request.user
 
-    if not user.is_authenticated():
+    if not has_registered(user):
         logout(request)
         return redirect(reverse('dashboard'))
     platform_name = microsite.get_value("platform_name", settings.PLATFORM_NAME)
@@ -1020,7 +1021,7 @@ def change_enrollment(request, check_access=True):
     user = request.user
 
     # Ensure the user is authenticated
-    if not user.is_authenticated():
+    if not has_registered(user):
         return HttpResponseForbidden()
 
     # Ensure we received a course_id

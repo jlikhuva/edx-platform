@@ -6,8 +6,6 @@ from courseware.courses import get_course_about_section
 from django.conf import settings
 from edxmako.shortcuts import marketing_link
 from openedx.core.lib.courses import course_image_url
-
-from lazysignup.utils import is_lazy_user
 %>
 
 <%inherit file="../main.html" />
@@ -26,22 +24,25 @@ from lazysignup.utils import is_lazy_user
       $("#class_enroll_form").submit();
       event.preventDefault();
     });
+
     sneakpeek_handler = function(jqXHR) {
-        if (jqXHR.status == 200) {
-            location.href = "${course_target}";
-        } else {
-            $("#register_error")
-                .html("${_('An error occured. Please try again later.')}")
-                .css("display", "block");
-        }
+      if (jqXHR.status == 200) {
+        location.href = "${course_target}";
+      }
+      else {
+        $("#register_error")
+        .html("${_('An error occurred. Please try again later.')}")
+        .css("display", "block");
+      }
     };
+
     $(".course_sneakpeek").click(function(event) {
-        $.ajax({
-            url: "${reverse('course_sneakpeek', args=[course.id.to_deprecated_string()])}",
-            type: "POST",
-            complete: sneakpeek_handler,
-        });
-        event.preventDefault();
+      $.ajax({
+        url: "${reverse('course_sneakpeek', args=[course.id.to_deprecated_string()])}",
+        type: "POST",
+        complete: sneakpeek_handler
+      });
+      event.preventDefault();
     });
 
     % if can_add_course_to_cart:
@@ -180,18 +181,16 @@ from lazysignup.utils import is_lazy_user
           </a>
           <div id="register_error"></div>
         %else:
-            <a href="#" class="register">
-                ${_("Enroll in {course_name}").format(course_name=course.display_number_with_default) | h}
-            </a>
-          % if course.allow_sneak_peek and not user.is_authenticated():
+          <a href="#" class="register">
+            ${_("Enroll in {course_name}").format(course_name=course.display_number_with_default) | h}
+          </a>
+          % if sneakpeek_allowed and not regularly_registered:
             <a href="#" class="course_sneakpeek">
-                <span class="sneakpeek">
-                    ${_("Explore {course_name}*").format(course_name=course.display_number_with_default) | h}
-                </span>
+              <span class="sneakpeek">${_("Explore Course")} *</span>
             </a>
-            <%include file="./sneakpeek_terms_of_service_and_privacy.html"/>
+            <%include file="sneak_peek_tos_privacy.html" />
           % endif
-        <div id="register_error"></div>
+          <div id="register_error"></div>
         %endif
         </div>
 
@@ -234,8 +233,8 @@ from lazysignup.utils import is_lazy_user
       <div class="inner-wrapper">
         ${get_course_about_section(request, course, "overview")}
       </div>
-      % if course.allow_sneak_peek and not user.is_authenticated():
-        <%include file="./sneakpeek_terms_of_service_and_privacy.html"/>
+      % if sneakpeek_allowed and not regularly_registered:
+        <%include file="sneak_peek_tos_privacy.html" />
       % endif
     </section>
 
